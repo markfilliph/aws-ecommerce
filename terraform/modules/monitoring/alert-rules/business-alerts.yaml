@@ -1,0 +1,110 @@
+groups:
+- name: business_alerts
+  rules:
+  # Order Volume Monitoring
+  - alert: LowOrderVolume
+    expr: rate(ecommerce_orders_total[15m]) < 1
+    for: 15m
+    labels:
+      severity: warning
+      domain: business
+    annotations:
+      summary: Low order volume detected
+      description: Order rate has dropped below 1 order per minute for the last 15 minutes
+
+  - alert: HighOrderCancellationRate
+    expr: rate(ecommerce_orders_cancelled_total[1h]) / rate(ecommerce_orders_total[1h]) * 100 > 10
+    for: 15m
+    labels:
+      severity: warning
+      domain: business
+    annotations:
+      summary: High order cancellation rate
+      description: Order cancellation rate is above 10% in the last hour
+
+  # Payment Processing
+  - alert: HighPaymentFailureRate
+    expr: rate(ecommerce_payment_failures_total[15m]) / rate(ecommerce_payment_attempts_total[15m]) * 100 > 5
+    for: 5m
+    labels:
+      severity: critical
+      domain: business
+    annotations:
+      summary: High payment failure rate
+      description: Payment failure rate is above 5% in the last 15 minutes
+
+  # Cart Abandonment
+  - alert: HighCartAbandonmentRate
+    expr: rate(ecommerce_cart_abandoned_total[1h]) / rate(ecommerce_cart_created_total[1h]) * 100 > 70
+    for: 30m
+    labels:
+      severity: warning
+      domain: business
+    annotations:
+      summary: High cart abandonment rate
+      description: Cart abandonment rate is above 70% in the last hour
+
+  # Inventory Alerts
+  - alert: LowInventoryStock
+    expr: ecommerce_product_stock < 10
+    for: 5m
+    labels:
+      severity: warning
+      domain: business
+    annotations:
+      summary: Low inventory stock
+      description: Product {{ $labels.product_id }} has less than 10 items in stock
+
+  - alert: OutOfStock
+    expr: ecommerce_product_stock == 0
+    for: 1m
+    labels:
+      severity: critical
+      domain: business
+    annotations:
+      summary: Product out of stock
+      description: Product {{ $labels.product_id }} is out of stock
+
+  # Revenue Monitoring
+  - alert: RevenueDropDetected
+    expr: (rate(ecommerce_revenue_total[1h]) - rate(ecommerce_revenue_total[1h] offset 1h)) / rate(ecommerce_revenue_total[1h] offset 1h) * 100 < -20
+    for: 30m
+    labels:
+      severity: critical
+      domain: business
+    annotations:
+      summary: Significant revenue drop detected
+      description: Revenue has dropped by more than 20% compared to the previous hour
+
+  # User Experience
+  - alert: HighCheckoutAbandonmentRate
+    expr: rate(ecommerce_checkout_abandoned_total[30m]) / rate(ecommerce_checkout_started_total[30m]) * 100 > 50
+    for: 15m
+    labels:
+      severity: warning
+      domain: business
+    annotations:
+      summary: High checkout abandonment rate
+      description: Checkout abandonment rate is above 50% in the last 30 minutes
+
+  # Customer Service
+  - alert: HighCustomerSupportTicketVolume
+    expr: rate(ecommerce_support_tickets_created_total[1h]) > 10
+    for: 30m
+    labels:
+      severity: warning
+      domain: business
+    annotations:
+      summary: High support ticket volume
+      description: More than 10 support tickets per hour being created
+
+  # Fraud Detection
+  - alert: HighFraudAttempts
+    expr: rate(ecommerce_fraud_attempts_total[15m]) > 5
+    for: 5m
+    labels:
+      severity: critical
+      domain: security
+    annotations:
+      summary: High number of fraud attempts detected
+      description: More than 5 fraud attempts detected in the last 15 minutes

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: ${ENVIRONMENT}
+data:
+  ENVIRONMENT: "${ENVIRONMENT}"
+  AWS_REGION: "${AWS_REGION}"
+  BACKEND_URL: "http://backend"
+  FRONTEND_URL: "https://${DOMAIN_NAME}"
